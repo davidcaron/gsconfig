@@ -861,7 +861,7 @@ class Catalog(object):
 
         resp = self.http_request(resource_url, method='post', data=feature_type.message(), headers=headers)
         if resp.status_code not in (200, 201, 202):
-            FailedRequestError('Failed to publish feature type {} : {}, {}'.format(name, resp.status_code, resp.text))
+            raise FailedRequestError('Failed to publish feature type {} : {}, {}'.format(name, resp.status_code, resp.text))
 
         self._cache.clear()
         feature_type.fetch()
@@ -1069,7 +1069,7 @@ class Catalog(object):
 
             resp = self.http_request(style.create_href, method='post', data=xml, headers=headers)
             if resp.status_code not in (200, 201, 202):
-                FailedRequestError('Failed to create style {} : {}, {}'.format(name, resp.status_code, resp.text))
+                raise FailedRequestError('Failed to create style {} : {}, {}'.format(name, resp.status_code, resp.text))
 
         headers = {
             "Content-type": style.content_type,
@@ -1082,7 +1082,7 @@ class Catalog(object):
 
         resp = self.http_request(body_href, method='put', data=data, headers=headers)
         if resp.status_code not in (200, 201, 202):
-            FailedRequestError('Failed to create style {} : {}, {}'.format(name, resp.status_code, resp.text))
+            raise FailedRequestError('Failed to create style {} : {}, {}'.format(name, resp.status_code, resp.text))
 
         self._cache.pop(style.href, None)
         self._cache.pop(style.body_href, None)
@@ -1100,7 +1100,7 @@ class Catalog(object):
 
         resp = self.http_request(workspace_url, method='post', data=xml, headers=headers)
         if resp.status_code not in (200, 201, 202):
-            FailedRequestError('Failed to create workspace {} : {}, {}'.format(name, resp.status_code, resp.text))
+            raise FailedRequestError('Failed to create workspace {} : {}, {}'.format(name, resp.status_code, resp.text))
 
         self._cache.pop("{}/workspaces.xml".format(self.service_url), None)
         workspaces = self.get_workspaces(names=name)
@@ -1155,7 +1155,7 @@ class Catalog(object):
 
             resp = self.http_request(default_workspace_url, method='put', data=data, headers=headers)
             if resp.status_code not in (200, 201, 202):
-                FailedRequestError('Failed to set default workspace {} : {}, {}'.format(name, resp.status_code, resp.text))
+                raise FailedRequestError('Failed to set default workspace {} : {}, {}'.format(name, resp.status_code, resp.text))
 
             self._cache.pop(default_workspace_url, None)
             self._cache.pop("{}/workspaces.xml".format(self.service_url), None)
@@ -1176,7 +1176,7 @@ class Catalog(object):
         url = "{}/workspaces/{}/datastores/{}/featuretypes.json?list={}".format(self.service_url, workspace, store, filter)
         resp = self.http_request(url)
         if resp.status_code != 200:
-            FailedRequestError('Failed to query feature_type_names')
+            raise FailedRequestError('Failed to query feature_type_names')
 
         data = []
         if filter in ('available', 'available_with_geom'):
@@ -1193,13 +1193,13 @@ class Catalog(object):
             url = "{}/workspaces/{}/datastores/{}/featuretypes.json?list=available".format(self.service_url, workspace, store)
             resp = self.http_request(url)
             if resp.status_code != 200:
-                FailedRequestError('Failed to query feature_type_names')
+                raise FailedRequestError('Failed to query feature_type_names')
             feature_type_names.extend(resp.json()['list']['string'])
 
             url = "{}/workspaces/{}/datastores/{}/featuretypes.json?list=configured".format(self.service_url, workspace, store)
             resp = self.http_request(url)
             if resp.status_code != 200:
-                FailedRequestError('Failed to query feature_type_names')
+                raise FailedRequestError('Failed to query feature_type_names')
             data = resp.json()['featureTypes']['featureType']
             feature_type_names.extend([fn['name'] for fn in data])
 
